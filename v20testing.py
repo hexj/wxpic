@@ -29,4 +29,4 @@ response = api.instrument.candles('USD_JPY', **params)
 candles = response.get("candles", 200)
 
 for c in candles:
-    print(c)
+    print(c.mid.o)
