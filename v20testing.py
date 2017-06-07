@@ -15,7 +15,7 @@ api = v20.Context(
 )
 
 params = {
-    "granularity": 'M1',
+    "granularity": 'D',
     "smooth": None,
     "count": None,
     "fromTime": None,
