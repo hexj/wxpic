@@ -42,24 +42,26 @@ def get_hist_df(instrument, granularity=None, count=None, fromTime=None, toTime=
         try:
             response = api.instrument.candles(instrument, **params)
             req_status = response.status
+
+            if req_status == 200:
+                candles = response.get("candles", 200)
+
+                df = pd.DataFrame(columns=['open', 'high', 'low', 'close'])
+                df.index.name = 'time'
+
+                for c in candles:
+                    df = df.append(pd.DataFrame({'open': c.mid.o,
+                                                'high': c.mid.h,
+                                                'low': c.mid.l,
+                                                'close': c.mid.c},
+                                                index=[pd.to_datetime(c.time) + tz_offset]),
+                                ignore_index=False)
+
+                return df
         except Exception:
             pass
         req_count += 1
 
-    candles = response.get("candles", 200)
-
-    df = pd.DataFrame(columns=['open', 'high', 'low', 'close'])
-    df.index.name = 'time'
-
-    for c in candles:
-        df = df.append(pd.DataFrame({'open': c.mid.o,
-                                     'high': c.mid.h,
-                                     'low': c.mid.l,
-                                     'close': c.mid.c},
-                                    index=[pd.to_datetime(c.time) + tz_offset]),
-                       ignore_index=False)
-
-    return df
 
 
 def get_indicators(df):

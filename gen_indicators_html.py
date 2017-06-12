@@ -273,9 +273,10 @@ html2 = '''
 
 
 def gen_html_pic(data, filename):
-    with open('./{}.html'.format(filename), 'w') as f:
+    with open('./output/{}.html'.format(filename), 'w') as f:
         f.write(html + html2.format(**data))
 
-    html_url = 'file:///home/yiju/wxpic/{}.html'.format(filename)
+    html_url = 'file:///home/yiju/wxpic/output/{}.html'.format(filename)
+    pic_path = './output/{}.png'.format(filename)
 
-    os.system('CutyCapt --url={} --out={}.png --min-width=100 --min-height=10 --zoom-factor=2.0'.format(html_url, filename))
+    os.system('CutyCapt --url={} --out={} --min-width=100 --min-height=10 --zoom-factor=2.0'.format(html_url, pic_path))
