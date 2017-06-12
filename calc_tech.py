@@ -6,6 +6,8 @@ import datetime
 # import tushare as ts
 import v20
 
+import gen_indicators_html
+
 # sample testing df
 # sym = '000001'
 # freq = '60'
@@ -87,6 +89,33 @@ def get_indicators(df):
     return [ma, ema, macd, rsi, stoch, adx, cci, willr, uo, roc, sar, atr]
 
 
+def make_indicators_dict(li):
+    indic_data = {
+        'ma5': li[0][0],
+        'ma10': li[0][1],
+        'ma20': li[0][2],
+        'ma50': li[0][3],
+        'ma100': li[0][4],
+        'ema5': li[1][0],
+        'ema10': li[1][1],
+        'ema20': li[1][2],
+        'ema50': li[1][3],
+        'ema100': li[1][4],
+        'macd': li[2],
+        'rsi': li[3],
+        'stoch': li[4],
+        'adx': li[5],
+        'cci': li[6],
+        'willr': li[7],
+        'uo': li[8],
+        'roc': li[9],
+        'sar': li[10],
+        'atr': li[11]
+    }
+    return indic_data
+
+
+
 # fdt = datetime.datetime.strptime('2017-06-09 19:00:00', '%Y-%m-%d %H:%M:%S')
 # ft_apistr = api.datetime_to_str(fdt)
 # df = get_hist_df('USD_JPY', 'M1', count=100, fromTime=ft_apistr)
@@ -163,7 +192,8 @@ output_dir = './output/'
 
 
 def gen_pic(save_dir, pair, freq, px, pre_px, indicators, dt_last):
-    csv_file = save_dir + '{}_{}.csv'.format(pair, freq)
+    filename = '{}_{}'.format(pair.replace('_', ''), freq)
+    csv_file = save_dir + filename + '.csv'
     string = []
     # string.append(datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S'))
     string.append(str(datetime.datetime.now())[:19])
@@ -178,6 +208,11 @@ def gen_pic(save_dir, pair, freq, px, pre_px, indicators, dt_last):
             string.append('{:.4f}'.format(x))
     with open(csv_file, 'w') as f:
         f.write(','.join(string))
+
+    data = make_indicators_dict(indicators)
+    data['shit'] = 'shit'
+    data['shit2'] = 'shit2'
+    gen_indicators_html.gen_html_pic(data, filename)
 
 
 threads = []
@@ -199,8 +234,9 @@ while 1:
         t_pic = threading.Thread(
             target=gen_pic,
             args=(output_dir, p, f, px, pre_px, indicators, dt_last))
+        t_pic.daemon = True
         t_pic.start()
-    time.sleep(5)
+    time.sleep(10)
 
 
 for t in threads:
