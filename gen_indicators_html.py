@@ -13,10 +13,6 @@ html = '''
     </head>
 
     <link rel="stylesheet" href="./tech.css" type="text/css">
-
-
-
-
     <script>
 	   // 对Date的扩展，将 Date 转化为指定格式的String
 	   // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
@@ -71,10 +67,11 @@ html2 = '''
 
 	      <div style="margin: 0 0px; background-color: white;">
 
-		        <div style="margin-left: 55px;">
-			          <!-- <span class="arial_17">欧元兑美元&nbsp;EURUSD</span> -->
-			          <span style="font-size:17px; text-align:center">欧元兑美元&nbsp;EURUSD</span>
-                <span title="Euro Zone" class="ceFlags Europe">&nbsp;</span>
+		        <!-- <div style="margin-left: 55px; margin-top: 20px"> -->
+		        <div style="margin-top: 20px; text-align:center">
+			          <!-- <span class="arial_17">{ccy1_cn}兑{ccy2_cn}&nbsp;{pair}</span> -->
+			          <span style="font-family:Helvetica; font-weight:bold; font-size:16px; text-align:center">{ccy1_cn}兑{ccy2_cn}&nbsp;{pair}</span>
+                <!-- <span title="Euro Zone" class="ceFlags Europe">&nbsp;</span> -->
 		        </div>
 
 		        <div style="margin-top: 8px;">
@@ -87,10 +84,10 @@ html2 = '''
 
 					              <span class="top bold inlineblock" style="float: left; margin-top: 5px;">
 
-						                <span class="arial_13">1.0855</span>
-                            <span class="arial_13 greenFont" style="margin-left:1px;">-0.14</span>
+						                <span class="arial_13">{last_px}</span>
+                            <span class="arial_13 greenFont" style="margin-left:1px;">{chg}</span>
 						                <!-- <span dir="rtl"></span> -->
-                            <span class="arial_13 greenFont  pid-166-pcp parentheses">-0.37%</span>
+                            <span class="arial_13 greenFont  pid-166-pcp parentheses">{chgpct}</span>
 					                  <!-- </div> -->
 					                  <span class="bottom lighterGrayFont arial_11" style="margin-left: -154px;margin-top: 31px; float: left;"></span>
 					                  <!-- <span class="inlineblock greenClockBigIcon" style=""></span> -->
@@ -119,37 +116,37 @@ html2 = '''
 			          <tbody>
 				            <tr>
 					              <td class="first left symbol">MA5</td>
-					              <td>{ma5}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ma5_str}&nbsp; <span class="greenFont bold">{ma5_comment}</span>
 					              </td>
-					              <td>{ema5}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ema5_str}&nbsp; <span class="greenFont bold">{ema5_comment}</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">MA10</td>
-					              <td>{ma10}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ma10_str}&nbsp; <span class="greenFont bold">{ma10_comment}</span>
 					              </td>
-					              <td>{ema10}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ema10_str}&nbsp; <span class="greenFont bold">{ema10_comment}</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">MA20</td>
-					              <td>{ma20}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ma20_str}&nbsp; <span class="greenFont bold">{ma20_comment}</span>
 					              </td>
-					              <td>{ema20}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ema20_str}&nbsp; <span class="greenFont bold">{ema20_comment}</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">MA50</td>
-					              <td>{ma50}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ma50_str}&nbsp; <span class="greenFont bold">{ma50_comment}</span>
 					              </td>
-					              <td>{ema50}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ema50_str}&nbsp; <span class="greenFont bold">{ema50_comment}</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">MA100</td>
-					              <td>{ma100}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ma100_str}&nbsp; <span class="greenFont bold">{ma100_comment}</span>
 					              </td>
-					              <td>{ema100}&nbsp; <span class="greenFont bold"> 偏空 </span>
+					              <td>{ema100_str}&nbsp; <span class="greenFont bold">{ema100_comment}</span>
 					              </td>
 				            </tr>
 				            <tr>
@@ -192,57 +189,51 @@ html2 = '''
 			          <tbody>
 				            <tr>
 					              <td class="first left symbol">MACD(12,26,9)</td>
-					              <td class="right">{macd}</td>
-					              <td class="left textNum bold"><span class="greenFont bold">偏空</span>
+					              <td class="right">{macd:.4f}</td>
+					              <td class="left textNum bold"><span class="greenFont bold">{macd_comment}</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">RSI(14)</td>
-					              <td class="right">{rsi}</td>
-					              <td class="left textNum bold"><span class="bold">超卖</span></td>
+					              <td class="right">{rsi:.2f}</td>
+					              <td class="left textNum bold"><span class="bold">{rsi_comment}</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">ADX(14)</td>
-					              <td class="right">{adx}</td>
-					              <td class="left textNum bold"><span class="bold">超卖</span></td>
+					              <td class="right">{adx_str}</td>
+					              <td class="left textNum bold"><span class="bold">{adx_comment}</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">STOCH(9,6)</td>
-					              <td class="right">{stoch}</td>
-					              <td class="left textNum bold"><span class="bold">超卖</span></td>
+					              <td class="right">{stoch:.2f}</td>
+					              <td class="left textNum bold"><span class="bold">{stoch_comment}</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">CCI(14)</td>
-					              <td class="right">{cci}</td>
-					              <td class="left textNum bold"><span class="greenFont bold">偏空</span>
+					              <td class="right">{cci:.2f}</td>
+					              <td class="left textNum bold"><span class="greenFont bold">{cci_comment}</span>
 					              </td>
 				            </tr>
 				            <tr>
-					              <td class="first left symbol">Williams %R</td>
-					              <td class="right">{willr}</td>
-					              <td class="left textNum bold"><span class="greenFont bold">偏空</span>
+					              <td class="first left symbol">StochRSI</td>
+					              <td class="right">{stochrsi:.2f}</td>
+					              <td class="left textNum bold"><span class="greenFont bold">{stochrsi_comment}</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">Ultimate Oscillator</td>
-					              <td class="right">{uo}</td>
-					              <td class="left textNum bold"><span class="greenFont bold">偏空</span>
+					              <td class="right">{uo:.2f}</td>
+					              <td class="left textNum bold"><span class="greenFont bold">{uo_comment}</span>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">ROC</td>
-					              <td class="right">{roc}</td>
-					              <td class="left textNum bold"><span class="greenFont bold">偏空</span></td>
+					              <td class="right">{roc:.4f}</td>
+					              <td class="left textNum bold"><span class="greenFont bold">{roc_comment}</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">SAR</td>
-					              <td class="right">{sar}</td>
-					              <td class="left textNum bold"><span class="greenFont bold">偏空</span>
-					              </td>
-				            </tr>
-				            <tr>
-					              <td class="first left symbol">ATR(14)</td>
-					              <td class="right">{atr}</td>
-					              <td class="left textNum bold"><span class="bold">高波动</span></td>
+					              <td class="right">{sar_str}</td>
+					              <td class="left textNum bold"><span class="greenFont bold">{sar_comment}</span>
 					              </td>
 				            </tr>
 				            <tr>
@@ -279,4 +270,5 @@ def gen_html_pic(data, filename):
     html_url = 'file:///home/yiju/wxpic/output/{}.html'.format(filename)
     pic_path = './output/{}.png'.format(filename)
 
-    os.system('CutyCapt --url={} --out={} --min-width=100 --min-height=10 --zoom-factor=2.0'.format(html_url, pic_path))
+    # os.system('CutyCapt --url={} --out={} --min-width=100 --min-height=10 --zoom-factor=2.0'.format(html_url, pic_path))
+    os.system('CutyCapt --url={} --out={} --min-width=620 --zoom-factor=3.0'.format(html_url, pic_path))
