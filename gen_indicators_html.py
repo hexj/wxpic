@@ -17,7 +17,37 @@ html = '''
 	   // 对Date的扩展，将 Date 转化为指定格式的String
 	   // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
 	   // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
-	   // 例子pe="text/javascript">
+	   // 例子：
+	   // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
+	   // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18
+	   Date.prototype.Format = function(fmt) { //author: meizz
+		     var o = {
+			       "M+" : this.getMonth() + 1, //月份
+			       "d+" : this.getDate(), //日
+			       "h+" : this.getHours(), //小时
+			       "m+" : this.getMinutes(), //分
+			       "s+" : this.getSeconds(), //秒
+			       "q+" : Math.floor((this.getMonth() + 3) / 3), //季度
+			       "S" : this.getMilliseconds()
+		         //毫秒
+		     };
+		     if (/(y+)/.test(fmt))
+			       fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "")
+					       .substr(4 - RegExp.$1.length));
+		     for ( var k in o)
+			       if (new RegExp("(" + k + ")").test(fmt))
+				         fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k])
+						                     : (("00" + o[k]).substr(("" + o[k]).length)));
+		     return fmt;
+	   };
+	   var time1 = new Date().Format("yyyy/MM/dd");
+	   var dateTime = new Date().Format("yyyy/MM/dd hh:mm:ss");
+
+	   /*document.write(dateTime);*/
+    </script>
+
+
+    <script type="text/javascript">
 	   var t = null;
 	   function time() {
 		     var dateTime = new Date().Format("yyyy/MM/dd hh:mm:ss");
@@ -37,28 +67,38 @@ html2 = '''
 
 	      <div style="margin: 0 0px; background-color: white;">
 
-		        <!-- <div style="margin-left: 55px; margin-top: 20px"> -->
 		        <div style="margin-top: 20px; text-align:center">
-			          <!-- <span class="arial_17">{ccy1_cn}兑{ccy2_cn}&nbsp;{pair}</span> -->
-			          <span style="font-family:Helvetica; font-weight:bold; font-size:16px; text-align:center">{ccy1_cn}兑{ccy2_cn}&nbsp;{pair}</span>
-                <!-- <span title="Euro Zone" class="ceFlags Europe">&nbsp;</span> -->
-		        </div>
+			          <!-- <span class="arial_17">美元兑加拿大元&nbsp;USDCAD</span> -->
+                <table style="margin:auto">
+                    <tr>
+                        <td>
+                            <img src="{ccy1}-icon.png" style="width:20px; height:20px; margin-top:3px" />
+                            <img src="{ccy2}-icon.png" style="width:20px; height:20px; margin-top:3px" />
+                        </td>
+                        <td>
+                            <!-- <span class="arial_17">{ccy1_cn}兑{ccy2_cn}&nbsp;{pair}</span> -->
+                            <span style="font-family:Helvetica; font-weight:bold; font-size:16px; text-align:center">&nbsp;{ccy1_cn}兑{ccy2_cn}&nbsp;{pair}</span>
+                            <!-- <span title="Euro Zone" class="ceFlags Europe">&nbsp;</span> -->
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
 		        <div style="margin-top: 8px;">
 			          <div style="margin-left: 0px;">
-                            <img src="{arrow_pic}" style="width:22px; height:22px; margin-bottom: 12px"/>
+                            <img src="{arrow_pic}" style="width:20px; height:20px; margin-bottom: 12px"/>
 				            <span class="inlineblock">
 
 					              <span class="top bold inlineblock" style="float: left; margin-top: 5px;">
 
-						                <span class="arial_12">{last_px}</span>
-                            <span class="arial_12 greenFont" style="margin-left:1px;">{chg}</span>
+						                <span class="arial_11">{last_px}</span>
+                            <span class="arial_11 greenFont" style="margin-left:1px;">{chg}</span>
 						                <!-- <span dir="rtl"></span> -->
-                            <span class="arial_12 greenFont  pid-166-pcp parentheses">{chgpct}</span>
+                            <span class="arial_11 greenFont  pid-166-pcp parentheses">{chgpct}</span>
 					                  <!-- </div> -->
 					                  <span class="bottom lighterGrayFont arial_11" style="margin-left: -154px;margin-top: 31px; float: left;"></span>
 					                  <!-- <span class="inlineblock greenClockBigIcon" style=""></span> -->
-                            <span id="timeShow" class="bold" style="margin-left: 3px; font-size: 10px">这里显示时间</span>
+                            <span id="timeShow" class="bold" style="margin-left: 3px; font-size: 9px">这里显示时间</span>
 					              </span>
 				            </span>
 			          </div>
@@ -67,7 +107,7 @@ html2 = '''
 
 	      <div class="halfSizeColumn" style="margin-top: -30px;">
 		        <h3>
-			          <a href="#">&nbsp;移动平均 MA</a><span
+			          &nbsp;移动平均<span
 				                                             class=" arial_11 bold lighterGrayFont h3TitleDate"> </span>
 		        </h3>
 
@@ -138,7 +178,7 @@ html2 = '''
 	      <div class="halfSizeColumn tech_indicator_div"
 		                style="margin-top: -20px;">
 		        <h3>
-			          <a href="#">&nbsp;技术指标</a><span
+			          &nbsp;技术指标<span
 				                                          class=" arial_11 bold lighterGrayFont h3TitleDate"> </span>
 			          <!-- 这里可以写点什么 -->
 
@@ -163,17 +203,17 @@ html2 = '''
 				            <tr>
 					              <td class="first left symbol">RSI(14)</td>
 					              <td class="right">{rsi:.2f}</td>
-					              <td class="left textNum bold"><span class="bold">{rsi_comment}</span></td>
+					              <td class="left textNum bold"><span class="greenFont bold">{rsi_comment}</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">ADX(14)</td>
 					              <td class="right">{adx_str}</td>
-					              <td class="left textNum bold"><span class="bold">{adx_comment}</span></td>
+					              <td class="left textNum bold"><span class="greenFont bold">{adx_comment}</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">STOCH(9,6)</td>
 					              <td class="right">{stoch:.2f}</td>
-					              <td class="left textNum bold"><span class="bold">{stoch_comment}</span></td>
+					              <td class="left textNum bold"><span class="greenFont bold">{stoch_comment}</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">CCI(14)</td>
@@ -232,10 +272,15 @@ html2 = '''
 
 def gen_html_pic(data, filename):
     with open('./output/{}.html'.format(filename), 'w') as f:
-        f.write(html + html2.format(**data))
+        out_html = html + html2.format(**data)
+        out_html = out_html.replace('"greenFont bold">偏多', '"redFont bold">偏多')
+        out_html = out_html.replace('"greenFont bold">超买', '"bold">超买')
+        out_html = out_html.replace('"greenFont bold">超卖', '"bold">超卖')
+        out_html = out_html.replace('"greenFont bold">中性', '"bold">中性')
+        f.write(out_html)
 
     html_url = 'file:///home/yiju/wxpic/output/{}.html'.format(filename)
     pic_path = './output/{}.png'.format(filename)
 
     # os.system('CutyCapt --url={} --out={} --min-width=100 --min-height=10 --zoom-factor=2.0'.format(html_url, pic_path))
-    os.system('CutyCapt --url={} --out={} --min-width=620 --zoom-factor=3.0'.format(html_url, pic_path))
+    os.system('CutyCapt --url={} --out={} --min-width=900 --zoom-factor=3.0'.format(html_url, pic_path))

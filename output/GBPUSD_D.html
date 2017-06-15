@@ -14,7 +14,37 @@
 	   // 对Date的扩展，将 Date 转化为指定格式的String
 	   // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
 	   // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
-	   // 例子pe="text/javascript">
+	   // 例子：
+	   // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
+	   // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18
+	   Date.prototype.Format = function(fmt) { //author: meizz
+		     var o = {
+			       "M+" : this.getMonth() + 1, //月份
+			       "d+" : this.getDate(), //日
+			       "h+" : this.getHours(), //小时
+			       "m+" : this.getMinutes(), //分
+			       "s+" : this.getSeconds(), //秒
+			       "q+" : Math.floor((this.getMonth() + 3) / 3), //季度
+			       "S" : this.getMilliseconds()
+		         //毫秒
+		     };
+		     if (/(y+)/.test(fmt))
+			       fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "")
+					       .substr(4 - RegExp.$1.length));
+		     for ( var k in o)
+			       if (new RegExp("(" + k + ")").test(fmt))
+				         fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k])
+						                     : (("00" + o[k]).substr(("" + o[k]).length)));
+		     return fmt;
+	   };
+	   var time1 = new Date().Format("yyyy/MM/dd");
+	   var dateTime = new Date().Format("yyyy/MM/dd hh:mm:ss");
+
+	   /*document.write(dateTime);*/
+    </script>
+
+
+    <script type="text/javascript">
 	   var t = null;
 	   function time() {
 		     var dateTime = new Date().Format("yyyy/MM/dd hh:mm:ss");
@@ -32,28 +62,38 @@
 
 	      <div style="margin: 0 0px; background-color: white;">
 
-		        <!-- <div style="margin-left: 55px; margin-top: 20px"> -->
 		        <div style="margin-top: 20px; text-align:center">
-			          <!-- <span class="arial_17">英镑兑美元&nbsp;GBPUSD</span> -->
-			          <span style="font-family:Helvetica; font-weight:bold; font-size:16px; text-align:center">英镑兑美元&nbsp;GBPUSD</span>
-                <!-- <span title="Euro Zone" class="ceFlags Europe">&nbsp;</span> -->
-		        </div>
+			          <!-- <span class="arial_17">美元兑加拿大元&nbsp;USDCAD</span> -->
+                <table style="margin:auto">
+                    <tr>
+                        <td>
+                            <img src="GBP-icon.png" style="width:20px; height:20px; margin-top:3px" />
+                            <img src="USD-icon.png" style="width:20px; height:20px; margin-top:3px" />
+                        </td>
+                        <td>
+                            <!-- <span class="arial_17">英镑兑美元&nbsp;GBPUSD</span> -->
+                            <span style="font-family:Helvetica; font-weight:bold; font-size:16px; text-align:center">&nbsp;英镑兑美元&nbsp;GBPUSD</span>
+                            <!-- <span title="Euro Zone" class="ceFlags Europe">&nbsp;</span> -->
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
 		        <div style="margin-top: 8px;">
 			          <div style="margin-left: 0px;">
-                            <img src="arrow-down_green.png" style="width:22px; height:22px; margin-bottom: 12px"/>
+                            <img src="arrow-down_green.png" style="width:20px; height:20px; margin-bottom: 12px"/>
 				            <span class="inlineblock">
 
 					              <span class="top bold inlineblock" style="float: left; margin-top: 5px;">
 
-						                <span class="arial_12">1.2698</span>
-                            <span class="arial_12 greenFont" style="margin-left:1px;">-0.0052</span>
+						                <span class="arial_11">1.2741</span>
+                            <span class="arial_11 greenFont" style="margin-left:1px;">-0.0009</span>
 						                <!-- <span dir="rtl"></span> -->
-                            <span class="arial_12 greenFont  pid-166-pcp parentheses">-0.412%</span>
+                            <span class="arial_11 greenFont  pid-166-pcp parentheses">-0.074%</span>
 					                  <!-- </div> -->
 					                  <span class="bottom lighterGrayFont arial_11" style="margin-left: -154px;margin-top: 31px; float: left;"></span>
 					                  <!-- <span class="inlineblock greenClockBigIcon" style=""></span> -->
-                            <span id="timeShow" class="bold" style="margin-left: 3px; font-size: 10px">这里显示时间</span>
+                            <span id="timeShow" class="bold" style="margin-left: 3px; font-size: 9px">这里显示时间</span>
 					              </span>
 				            </span>
 			          </div>
@@ -62,7 +102,7 @@
 
 	      <div class="halfSizeColumn" style="margin-top: -30px;">
 		        <h3>
-			          <a href="#">&nbsp;移动平均 MA</a><span
+			          &nbsp;移动平均<span
 				                                             class=" arial_11 bold lighterGrayFont h3TitleDate"> </span>
 		        </h3>
 
@@ -78,37 +118,37 @@
 			          <tbody>
 				            <tr>
 					              <td class="first left symbol">MA5</td>
-					              <td>1.2721&nbsp; <span class="greenFont bold">偏空</span>
+					              <td>1.2730&nbsp; <span class="redFont bold">偏多</span>
 					              </td>
-					              <td>1.2740&nbsp; <span class="greenFont bold">偏空</span>
+					              <td>1.2754&nbsp; <span class="greenFont bold">偏空</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">MA10</td>
-					              <td>1.2808&nbsp; <span class="greenFont bold">偏空</span>
-					              </td>
-					              <td>1.2782&nbsp; <span class="greenFont bold">偏空</span>
-					              </td>
-				            </tr>
-				            <tr>
-					              <td class="first left symbol">MA20</td>
-					              <td>1.2857&nbsp; <span class="greenFont bold">偏空</span>
-					              </td>
-					              <td>1.2824&nbsp; <span class="greenFont bold">偏空</span>
-					              </td>
-				            </tr>
-				            <tr>
-					              <td class="first left symbol">MA50</td>
-					              <td>1.2834&nbsp; <span class="greenFont bold">偏空</span>
+					              <td>1.2813&nbsp; <span class="greenFont bold">偏空</span>
 					              </td>
 					              <td>1.2790&nbsp; <span class="greenFont bold">偏空</span>
 					              </td>
 				            </tr>
 				            <tr>
-					              <td class="first left symbol">MA100</td>
-					              <td>1.2627&nbsp; <span class="greenFont bold">偏多</span>
+					              <td class="first left symbol">MA20</td>
+					              <td>1.2859&nbsp; <span class="greenFont bold">偏空</span>
 					              </td>
-					              <td>1.2627&nbsp; <span class="greenFont bold">偏多</span>
+					              <td>1.2828&nbsp; <span class="greenFont bold">偏空</span>
+					              </td>
+				            </tr>
+				            <tr>
+					              <td class="first left symbol">MA50</td>
+					              <td>1.2835&nbsp; <span class="greenFont bold">偏空</span>
+					              </td>
+					              <td>1.2792&nbsp; <span class="greenFont bold">偏空</span>
+					              </td>
+				            </tr>
+				            <tr>
+					              <td class="first left symbol">MA100</td>
+					              <td>1.2628&nbsp; <span class="redFont bold">偏多</span>
+					              </td>
+					              <td>1.2628&nbsp; <span class="redFont bold">偏多</span>
 					              </td>
 				            </tr>
 				            <tr>
@@ -133,7 +173,7 @@
 	      <div class="halfSizeColumn tech_indicator_div"
 		                style="margin-top: -20px;">
 		        <h3>
-			          <a href="#">&nbsp;技术指标</a><span
+			          &nbsp;技术指标<span
 				                                          class=" arial_11 bold lighterGrayFont h3TitleDate"> </span>
 			          <!-- 这里可以写点什么 -->
 
@@ -151,45 +191,45 @@
 			          <tbody>
 				            <tr>
 					              <td class="first left symbol">MACD(12,26,9)</td>
-					              <td class="right">-0.0028</td>
+					              <td class="right">-0.0025</td>
 					              <td class="left textNum bold"><span class="greenFont bold">偏空</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">RSI(14)</td>
-					              <td class="right">39.27</td>
-					              <td class="left textNum bold"><span class="bold">偏空</span></td>
+					              <td class="right">42.04</td>
+					              <td class="left textNum bold"><span class="greenFont bold">偏空</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">ADX(14)</td>
-					              <td class="right">28.70</td>
-					              <td class="left textNum bold"><span class="bold">偏空</span></td>
+					              <td class="right">28.75</td>
+					              <td class="left textNum bold"><span class="greenFont bold">偏空</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">STOCH(9,6)</td>
-					              <td class="right">26.28</td>
-					              <td class="left textNum bold"><span class="bold">偏空</span></td>
+					              <td class="right">28.38</td>
+					              <td class="left textNum bold"><span class="greenFont bold">偏空</span></td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">CCI(14)</td>
-					              <td class="right">-92.11</td>
+					              <td class="right">-75.21</td>
 					              <td class="left textNum bold"><span class="greenFont bold">偏空</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">StochRSI</td>
-					              <td class="right">59.95</td>
-					              <td class="left textNum bold"><span class="greenFont bold">超买</span>
+					              <td class="right">90.22</td>
+					              <td class="left textNum bold"><span class="bold">超买</span>
 					              </td>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">Ultimate Oscillator</td>
-					              <td class="right">45.00</td>
+					              <td class="right">47.95</td>
 					              <td class="left textNum bold"><span class="greenFont bold">偏空</span>
 				            </tr>
 				            <tr>
 					              <td class="first left symbol">ROC</td>
-					              <td class="right">-0.0041</td>
+					              <td class="right">-0.0007</td>
 					              <td class="left textNum bold"><span class="greenFont bold">偏空</span></td>
 				            </tr>
 				            <tr>
