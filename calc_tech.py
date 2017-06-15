@@ -276,6 +276,13 @@ def gen_pic(save_dir, pair, freq, px, pre_px, indicators, dt_last):
     data['last_px'] = px_fmt.format(px)
     data['chg'] = px_fmt.format(px - pre_px)
     data['chgpct'] = '{:.3%}'.format(px/pre_px-1)
+    if px > pre_px:
+        data['arrow_pic'] = 'arrow-up_red.png'
+    elif px < pre_px:
+        data['arrow_pic'] = 'arrow-down_green.png'
+    else:
+        data['arrow_pic'] = 'arrow-right_blue.png'
+
     data['shit'] = 'shit'
     data['shit2'] = 'shit2'
 
