@@ -1,0 +1,184 @@
+/*@import
+	url(https://fonts.googleapis.com/earlyaccess/droidarabicnaskh.css);*/
+
+html,body,div,span,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video
+	{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit
+}
+
+BODY {
+	background: none;
+	font-family: Arial, Helvetica, "Nimbus Sans L", sans-serif;
+	font-size: 12px;
+	color: #333;
+	margin: 0;
+	padding: 0;
+	background-color: #fff;
+	text-align: left;
+	direction: ltr
+}
+
+
+/* 表格背景颜色 */
+table { /* background-color: #edf4fa; */
+	font-weight: bold;	
+}
+
+
+.inlineblock {
+	display: inline-block
+}
+
+.hidden {
+	visibility: hidden
+}
+
+.visible {
+	visibility: visible
+}
+
+/* 加粗字体 */
+.bold {
+	font-weight: bold
+}
+
+/* no加粗字体 */
+.noBold {
+	font-weight: normal !important
+}
+
+.genTbl {
+	border-spacing: 0;
+	border-collapse: separate;
+	width: 100%
+}
+
+.genTbl TR:first-child TD {
+	border-top: 0px solid #bababa
+}
+
+/* 悬浮在一行上的背景颜色 */
+.genTbl TBODY TR:hover {
+	background-color: #edf4fa
+}
+
+TBODY TR:hover {
+	background-color: #FFF
+}
+
+/* 表头样式 */
+TH {
+	color: #333;
+	font-weight: bold;
+	text-align: right;
+	height: 24px; /*表头的高度*/
+	white-space: nowrap;
+	padding-right: 5px
+}
+
+.genTbl TD {
+	border-top: 1px solid #dadada;
+	height: 23px;
+	text-align: right; /* 技术指标值的对齐的位置 */
+	vertical-align: middle;
+}
+
+.genTbl TD.dirRtl {
+	direction: rtl
+}
+
+.genTbl TD:first-child {
+	font-weight: bold
+}
+
+/* 第一列  左对齐 */
+.genTbl .left {
+	text-align: left
+}
+
+/* 第1列? 左padding */
+.genTbl .first {
+	padding-left: 0px
+}
+
+/* 技术指标的值  文本的位置 */
+.genTbl .textNum {
+	padding-left: 10px
+}
+
+/* 表格边框 */
+.closedTbl {
+	border: 1px solid #bababa;
+	border-bottom-width: 1px
+}
+
+/* 最后一列*/
+.closedTbl TD:last-child,TH:last-child {
+	padding-right: 10px
+}
+
+/* 最后一行*/
+.closedTbl .lastRow {
+	height: 53px;
+	line-height: 19px
+}
+
+/* 最后一行 对齐 */
+.closedTbl .lastRow P {
+	padding-right: 10px
+}
+
+
+.bottomHeader .redClockIcon {
+	background-position: -33px -21px;
+	padding: 0 0 3px 10px
+}
+
+
+/* ************* 颜色 ***************  */
+.lighterGrayFont {
+	color: #9b9b9b
+}
+
+.lightgrayFont {
+	color: gray
+}
+
+.grayFont {
+	color: #3f4a54
+}
+
+.blueFont {
+	color: #1256A0
+}
+
+.greenFont {
+	color: #0ea600
+}
+
+.redFont {
+	color: red
+}
+
+
+.darkRedFont {
+	color: #dc3d3d
+}
+
+.redBg {
+	background-color: #fcdede
+}
+
+.greenBg {
+	background-color: #c2f2c2
+}
+/* ************* 颜色  End *************  */
+.ceFlags {
+	height: 13px;
+	margin-top: -3px;
+	margin-right: 10px
+}

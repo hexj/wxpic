@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import talib
 import time
@@ -7,6 +8,7 @@ import datetime
 import v20
 
 import gen_indicators_html
+import gen_snapshot_html
 
 # sample testing df
 # sym = '000001'
@@ -37,7 +39,7 @@ def get_hist_df(instrument, granularity=None, count=None, fromTime=None, toTime=
     }
     req_count = 0
     req_status = 0
-    while req_status != 200 and req_count < 3:
+    while req_status != 200 and req_count < 5:
         # print('request trial ', req_count)
         try:
             response = api.instrument.candles(instrument, **params)
@@ -51,11 +53,11 @@ def get_hist_df(instrument, granularity=None, count=None, fromTime=None, toTime=
 
                 for c in candles:
                     df = df.append(pd.DataFrame({'open': c.mid.o,
-                                                'high': c.mid.h,
-                                                'low': c.mid.l,
-                                                'close': c.mid.c},
+                                                 'high': c.mid.h,
+                                                 'low': c.mid.l,
+                                                 'close': c.mid.c},
                                                 index=[pd.to_datetime(c.time) + tz_offset]),
-                                ignore_index=False)
+                                   ignore_index=False)
 
                 return df
         except Exception:
@@ -180,29 +182,34 @@ for pair, freq in fxdfs:
 
 def stream_one(pair, freq):
     while 1:
-        df = fxdfs[(pair, freq)]
-        # if dealing with sfc str:
-        # time_str = df.iloc[-1].time[:19]
-        # dt_last = datetime.datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S')
+        try:
+            df = fxdfs[(pair, freq)]
+            # if dealing with sfc str:
+            # time_str = df.iloc[-1].time[:19]
+            # dt_last = datetime.datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S')
 
-        dt_last = df.index[-1]
-        dt_now = datetime.datetime.now()
-        # if (dt_now - dt_last) > datetime.timedelta(minutes=5):
-        #     from_t_val = dt_last + datetime.timedelta(minutes=1) - tz_offset
-        #     from_t = api.datetime_to_str(from_t_val)
-        #     # df1 = get_hist_df(pair, freq, count=5, fromTime=from_t)  # for testing
-        #     df1 = get_hist_df(pair, freq, fromTime=from_t)
-        #     fxdfs[(pair, freq)] = df.append(df1)
-        # else:
-        #     df1 = get_hist_df(pair, freq, count=5)  # re-fetch last 5, maybe 2 ok
-        #     fxdfs[(pair, freq)] = pd.concat([df[~df.index.isin(df1.index)], df1])
-        #     print(pair, freq)
-        #     print(fxdfs[(pair, freq)].tail())
-        from_t = api.datetime_to_str(dt_last - tz_offset)
-        df1 = get_hist_df(pair, freq, fromTime=from_t)
-        fxdfs[(pair, freq)] = pd.concat([df[~df.index.isin(df1.index)], df1])
+            dt_last = df.index[-1]
+            dt_now = datetime.datetime.now()
+            # if (dt_now - dt_last) > datetime.timedelta(minutes=5):
+            #     from_t_val = dt_last + datetime.timedelta(minutes=1) - tz_offset
+            #     from_t = api.datetime_to_str(from_t_val)
+            #     # df1 = get_hist_df(pair, freq, count=5, fromTime=from_t)  # for testing
+            #     df1 = get_hist_df(pair, freq, fromTime=from_t)
+            #     fxdfs[(pair, freq)] = df.append(df1)
+            # else:
+            #     df1 = get_hist_df(pair, freq, count=5)  # re-fetch last 5, maybe 2 ok
+            #     fxdfs[(pair, freq)] = pd.concat([df[~df.index.isin(df1.index)], df1])
+            #     print(pair, freq)
+            #     print(fxdfs[(pair, freq)].tail())
+            from_t = api.datetime_to_str(dt_last - tz_offset)
+            df1 = get_hist_df(pair, freq, fromTime=from_t)
+            fxdfs[(pair, freq)] = pd.concat([df[~df.index.isin(df1.index)], df1])
+        except Exception as e:
+            print(pair, freq)
+            print(e)
+            print(fxdfs[(pair, freq)].tail())
 
-        time.sleep(0.1)
+        time.sleep(1)
 
 
 output_dir = './output/'
@@ -247,24 +254,7 @@ def adx_comment(x):
         return '中性'
 
 
-def gen_pic(save_dir, pair, freq, px, pre_px, indicators, dt_last):
-    filename = '{}_{}'.format(pair.replace('_', ''), freq)
-    csv_file = save_dir + filename + '.csv'
-    string = []
-    # string.append(datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S'))
-    string.append(str(datetime.datetime.now())[:19])
-    string.append(dt_last)
-    string.append(str(px))
-    string.append(str(pre_px))
-    for x in indicators:
-        if isinstance(x, list):
-            for xi in x:
-                string.append('{:.4f}'.format(xi))
-        else:
-            string.append('{:.4f}'.format(x))
-    with open(csv_file, 'w') as f:
-        f.write(','.join(string))
-
+def gen_data(pair, freq, px, pre_px, indicators):
     px_fmt = '{:.2f}' if pair[-3:] == 'JPY' else '{:.4f}'
     data = make_indicators_dict(indicators, px_fmt)
     data['pair'] = pair.replace('_', '')
@@ -276,6 +266,13 @@ def gen_pic(save_dir, pair, freq, px, pre_px, indicators, dt_last):
     data['last_px'] = px_fmt.format(px)
     data['chg'] = px_fmt.format(px - pre_px)
     data['chgpct'] = '{:.3%}'.format(px/pre_px-1)
+    if px > pre_px:
+        data['chgcolor'] = 'redFont'
+    elif px < pre_px:
+        data['chgcolor'] = 'greenFont'
+    else:
+        data['chgcolor'] = ''
+
     if px > pre_px:
         data['arrow_pic'] = 'arrow-up_red.png'
     elif px < pre_px:
@@ -305,6 +302,94 @@ def gen_pic(save_dir, pair, freq, px, pre_px, indicators, dt_last):
     data['uo_comment'] = trend_comment(data['uo'], 50)
     data['roc_comment'] = trend_comment(data['roc'], 0)
     data['sar_comment'] = trend_comment(px, data['sar'])
+
+    n_long1, n_short1, n_neu1, n_long2, n_short2, n_neu2, n_ob, n_os = 0, 0, 0, 0, 0, 0, 0, 0
+    for k, v in data.items():
+        if v == '偏多':
+            if (k.startswith('ma') or k.startswith('ema')) and not k.startswith('macd'):
+                n_long1 += 1
+            else:
+                n_long2 += 1
+        elif v == '偏空':
+            if (k.startswith('ma') or k.startswith('ema')) and not k.startswith('macd'):
+                n_short1 += 1
+            else:
+                n_short2 += 1
+        elif v == '中性':
+            if (k.startswith('ma') or k.startswith('ema')) and not k.startswith('macd'):
+                n_neu1 += 1
+            else:
+                n_neu2 += 1
+        elif v == '超买':
+            n_ob += 1
+        elif v == '超卖':
+            n_os += 1
+
+    data['n_long1'] = n_long1
+    data['n_short1'] = n_short1
+    data['n_neu1'] = n_neu1
+    data['n_long2'] = n_long2
+    data['n_short2'] = n_short2
+    data['n_neu2'] = n_neu2
+    data['n_ob'] = n_ob
+    data['n_os'] = n_os
+
+    img_up = '<img src="arrow-up_red.png" style="width:20px; height:20px; margin-bottom: -7px; margin-right: -5px"/>'
+    img_down = '<img src="arrow-down_green.png" style="width:20px; height:20px; margin-bottom: -7px; margin-right: -5px"/>'
+    if n_long1 - n_short1 >= 4:
+        data['summary1'] = '偏多' + img_up*2
+    elif n_long1 - n_short1 < 4 and n_long1 - n_short1 > 0:
+        data['summary1'] = '偏多' + img_up
+    elif n_long1 - n_short1 <= -4:
+        data['summary1'] = '偏空' + img_down*2
+    elif n_long1 - n_short1 > -4 and n_long1 - n_short1 < 0:
+        data['summary1'] = '偏空' + img_down
+    else:
+        data['summary1'] = '中性'
+
+    if n_long2 - n_short2 >= 4:
+        data['summary2'] = '偏多' + img_up*2
+    elif n_long2 - n_short2 < 4 and n_long2 - n_short2 > 0:
+        data['summary2'] = '偏多' + img_up
+    elif n_long2 - n_short2 <= -4:
+        data['summary2'] = '偏空' + img_down*2
+    elif n_long2 - n_short2 > -4 and n_long2 - n_short2 < 0:
+        data['summary2'] = '偏空' + img_down
+    else:
+        data['summary2'] = '中性'
+
+    px_data = []
+    for i in range(12):
+        px_data.append([i, fxdfs[(pair, freq)].close[-12+i]])
+    data['px_data'] = str(px_data)
+
+    return data
+
+
+def gen_single_pic(save_dir, pair, freq):
+    indicators = get_indicators(fxdfs[(pair, freq)])
+    dt_last = str(fxdfs[(pair, freq)].index[-1])
+    px = fxdfs[(pair, 'D')].close[-1]
+    pre_px = fxdfs[(pair, 'D')].close[-2]
+
+    filename = '{}_{}'.format(pair.replace('_', ''), freq)
+    csv_file = save_dir + filename + '.csv'
+    string = []
+    # string.append(datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S'))
+    string.append(str(datetime.datetime.now())[:19])
+    string.append(dt_last)
+    string.append(str(px))
+    string.append(str(pre_px))
+    for x in indicators:
+        if isinstance(x, list):
+            for xi in x:
+                string.append('{:.4f}'.format(xi))
+        else:
+            string.append('{:.4f}'.format(x))
+    with open(csv_file, 'w') as f:
+        f.write(','.join(string))
+
+    data = gen_data(pair, freq, px, pre_px, indicators)
     gen_indicators_html.gen_html_pic(data, filename)
 
 
@@ -319,6 +404,23 @@ def gen_mkt_snapshot(save_dir):
                 fxdfs[(pair, 'D')].close[-1]/fxdfs[(pair, 'D')].close[-2] - 1))
 
 
+def gen_snapshot_pic(filename):
+    out_html = gen_snapshot_html.html
+    for pair in pairs:
+        indicators = get_indicators(fxdfs[(pair, 'H1')])
+        px = fxdfs[(pair, 'D')].close[-1]
+        pre_px = fxdfs[(pair, 'D')].close[-2]
+        data = gen_data(pair, 'H1', px, pre_px, indicators)
+        out_html += gen_snapshot_html.html2.format(**data)
+    out_html += gen_snapshot_html.html3
+
+    with open(output_dir + filename + '.html', 'w') as f:
+        f.write(out_html)
+
+    html_url = 'file:///home/yiju/wxpic/output/{}.html'.format(filename)
+    pic_path = './output/{}.png'.format(filename)
+    os.system('CutyCapt --url={} --out={} --min-width=900 --zoom-factor=3.0'.format(html_url, pic_path))
+
 
 threads = []
 for p, f in fxdfs.keys():
@@ -330,18 +432,13 @@ for p, f in fxdfs.keys():
 while 1:
     for p, f in fxdfs.keys():
         # print(p, f, "indicators")
-        indicators = get_indicators(fxdfs[(p, f)])
-        dt_last = str(fxdfs[(p, f)].index[-1])
-        px = fxdfs[(p, 'D')].close[-1]
-        pre_px = fxdfs[(p, 'D')].close[-2]
         # print(p, px, pre_px)
         # print(fxdfs[(p, 'D')].tail())
-        t_pic = threading.Thread(
-            target=gen_pic,
-            args=(output_dir, p, f, px, pre_px, indicators, dt_last))
-        t_pic.daemon = True
+        t_pic = threading.Thread(target=gen_single_pic, args=(output_dir, p, f), daemon=True)
         t_pic.start()
 
+    t_snapshot = threading.Thread(target=gen_snapshot_pic, args=('snapshot',), daemon=True)
+    t_snapshot.start()
     gen_mkt_snapshot(output_dir)
     time.sleep(10)
 

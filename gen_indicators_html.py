@@ -68,7 +68,6 @@ html2 = '''
 	      <div style="margin: 0 0px; background-color: white;">
 
 		        <div style="margin-top: 20px; text-align:center">
-			          <!-- <span class="arial_17">美元兑加拿大元&nbsp;USDCAD</span> -->
                 <table style="margin:auto">
                     <tr>
                         <td>
@@ -76,9 +75,7 @@ html2 = '''
                             <img src="{ccy2}-icon.png" style="width:20px; height:20px; margin-top:3px" />
                         </td>
                         <td>
-                            <!-- <span class="arial_17">{ccy1_cn}兑{ccy2_cn}&nbsp;{pair}</span> -->
                             <span style="font-family:Helvetica; font-weight:bold; font-size:16px; text-align:center">&nbsp;{ccy1_cn}兑{ccy2_cn}&nbsp;{pair}</span>
-                            <!-- <span title="Euro Zone" class="ceFlags Europe">&nbsp;</span> -->
                         </td>
                     </tr>
                 </table>
@@ -92,9 +89,9 @@ html2 = '''
 					              <span class="top bold inlineblock" style="float: left; margin-top: 5px;">
 
 						                <span class="arial_11">{last_px}</span>
-                            <span class="arial_11 greenFont" style="margin-left:1px;">{chg}</span>
+                            <span class="arial_11 {chgcolor}" style="margin-left:1px;">{chg}</span>
 						                <!-- <span dir="rtl"></span> -->
-                            <span class="arial_11 greenFont  pid-166-pcp parentheses">{chgpct}</span>
+                            <span class="arial_11 {chgcolor} pid-166-pcp parentheses">{chgpct}</span>
 					                  <!-- </div> -->
 					                  <span class="bottom lighterGrayFont arial_11" style="margin-left: -154px;margin-top: 31px; float: left;"></span>
 					                  <!-- <span class="inlineblock greenClockBigIcon" style=""></span> -->
@@ -106,10 +103,14 @@ html2 = '''
 	      </div>
 
 	      <div class="halfSizeColumn" style="margin-top: -30px;">
-		        <h3>
-			          &nbsp;移动平均<span
-				                                             class=" arial_11 bold lighterGrayFont h3TitleDate"> </span>
-		        </h3>
+                <h3>
+                <table width="100%">
+                    <tr>
+                        <td>&nbsp;移动平均</td>
+                        <td align="right"><font size=1>K线周期&nbsp;</font><font size=2 color="blue">1分钟&nbsp;&nbsp;</font></h3></td>
+                    </tr>
+                </table>
+                </h3>
 
 		        <div class="clear"></div>
 		        <table class="genTbl closedTbl movingAvgsTbl" id="curr_table">
@@ -159,13 +160,16 @@ html2 = '''
 				            <tr>
 					              <td colspan="3" class="first left lastRow">
 						                <p class="inlineblock">
-							                  <span class="noBold">偏多:</span> <span>0</span>
+							                  <span class="noBold">偏多:</span> <span>{n_long1}</span>
 						                </p>
 						                <p class="inlineblock">
-							                  <span class="noBold">偏空:</span> <span>12</span>
+							                  <span class="noBold">偏空:</span> <span>{n_short1}</span>
+						                </p>
+						                <p class="inlineblock">
+							                  <span class="noBold">中性:</span> <span>{n_neu1}</span>
 						                </p> <br>
 						                <p class="inlineblock">
-							                  综合研判：<span class="greenFont bold uppercaseText"> {shit} </span>
+							                  综合研判：<span class="greenFont bold">{summary1}</span>
 						                </p>
 					              </td>
 				            </tr>
@@ -175,14 +179,14 @@ html2 = '''
 
 
 
-	      <div class="halfSizeColumn tech_indicator_div"
-		                style="margin-top: -20px;">
-		        <h3>
-			          &nbsp;技术指标<span
-				                                          class=" arial_11 bold lighterGrayFont h3TitleDate"> </span>
-			          <!-- 这里可以写点什么 -->
-
-		        </h3>
+	      <div class="halfSizeColumn tech_indicator_div" style="margin-top: -20px;">
+                <h3>
+                <table width="100%">
+                    <tr>
+                        <td>&nbsp;技术指标</td>
+                    </tr>
+                </table>
+                </h3>
 		        <span class="clear"></span>
 		        <table class="genTbl closedTbl movingAvgsTbl float_lang_base_2"
 			                    id="curr_table">
@@ -246,16 +250,22 @@ html2 = '''
 				            <tr>
 					              <td colspan="3" class="first left lastRow">
 						                <p class="inlineblock">
-							                  <span class="noBold">偏多:</span> <span>0</span>
+							                  <span class="noBold">偏多:</span> <span>{n_long2}</span>
 						                </p>
 						                <p class="inlineblock">
-							                  <span class="noBold">偏空:</span> <span>8</span>
+							                  <span class="noBold">偏空:</span> <span>{n_short2}</span>
 						                </p>
 						                <p class="inlineblock">
-							                  <span class="noBold">中性:</span> <span>0</span>
+							                  <span class="noBold">中性:</span> <span>{n_neu2}</span>
+						                </p>
+						                <p class="inlineblock">
+							                  <span class="noBold">超买:</span> <span>{n_ob}</span>
+						                </p>
+						                <p class="inlineblock">
+							                  <span class="noBold">超卖:</span> <span>{n_os}</span>
 						                </p> <br>
 						                <p class="inlineblock">
-							                  综合研判：<span class="greenFont bold uppercaseText"> {shit2} </span>
+							                  综合研判：<span class="greenFont bold">{summary2}</span>
 						                </p>
 					              </td>
 				            </tr>
