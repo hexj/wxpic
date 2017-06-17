@@ -258,10 +258,15 @@ def gen_data(pair, freq, px, pre_px, indicators):
     px_fmt = '{:.2f}' if pair[-3:] == 'JPY' else '{:.4f}'
     data = make_indicators_dict(indicators, px_fmt)
     data['pair'] = pair.replace('_', '')
+    data['freq'] = freq
     data['ccy1'] = pair[:3]
     data['ccy2'] = pair[-3:]
     data['ccy1_cn'] = ccy_cn[data['ccy1']]
     data['ccy2_cn'] = ccy_cn[data['ccy2']]
+    dict_freqcn = {'D': '日线', 'W': '周线', 'M': '月线',
+                   'H1': '1小时','H4': '4小时', 'H8': '8小时',
+                   'M1': '1分钟', 'M5': '5分钟', 'M10': '10分钟', 'M15': '15分钟', 'M30': '30分钟'}
+    data['freq_cn'] = dict_freqcn[freq]
 
     data['last_px'] = px_fmt.format(px)
     data['chg'] = px_fmt.format(px - pre_px)
@@ -279,9 +284,6 @@ def gen_data(pair, freq, px, pre_px, indicators):
         data['arrow_pic'] = 'arrow-down_green.png'
     else:
         data['arrow_pic'] = 'arrow-right_blue.png'
-
-    data['shit'] = 'shit'
-    data['shit2'] = 'shit2'
 
     data['ma5_comment'] = trend_comment(px, data['ma5'])
     data['ma10_comment'] = trend_comment(px, data['ma10'])

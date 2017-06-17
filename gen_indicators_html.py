@@ -107,7 +107,7 @@ html2 = '''
                 <table width="100%">
                     <tr>
                         <td>&nbsp;移动平均</td>
-                        <td align="right"><font size=1>K线周期&nbsp;</font><font size=2 color="blue">1分钟&nbsp;&nbsp;</font></h3></td>
+                        <td align="right"><font size=1>K线周期&nbsp;</font><font size=2 color="blue">{freq_cn}&nbsp;&nbsp;</font></h3></td>
                     </tr>
                 </table>
                 </h3>
