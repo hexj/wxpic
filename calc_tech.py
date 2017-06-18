@@ -1,22 +1,13 @@
-import os
-import pandas as pd
-import talib
-import time
-import threading
 import datetime
-# import tushare as ts
-import v20
+import os
+import threading
+import time
 
 import gen_indicators_html
 import gen_snapshot_html
-
-# sample testing df
-# sym = '000001'
-# freq = '60'
-
-# df = ts.get_hist_data(sym, ktype=freq)
-# df = df.sort_index()
-# to be changed to v20 fx df
+import pandas as pd
+import talib
+import v20
 
 api = v20.Context(
     hostname='api-fxpractice.oanda.com',
@@ -27,7 +18,18 @@ api = v20.Context(
 
 tz_offset = datetime.timedelta(hours=8)
 
-def get_hist_df(instrument, granularity=None, count=None, fromTime=None, toTime=None):
+ccy_cn = {'EUR': '欧元',
+          'USD': '美元',
+          'JPY': '日元',
+          'GBP': '英镑',
+          'AUD': '澳元',
+          'NZD': '新西兰元',
+          'CHF': '瑞士法郎',
+          'CAD': '加拿大元'}
+
+
+def get_hist_df(instrument, granularity=None, count=None, fromTime=None,
+                toTime=None):
     params = {
         "granularity": granularity,
         "smooth": None,
@@ -52,18 +54,18 @@ def get_hist_df(instrument, granularity=None, count=None, fromTime=None, toTime=
                 df.index.name = 'time'
 
                 for c in candles:
-                    df = df.append(pd.DataFrame({'open': c.mid.o,
-                                                 'high': c.mid.h,
-                                                 'low': c.mid.l,
-                                                 'close': c.mid.c},
-                                                index=[pd.to_datetime(c.time) + tz_offset]),
-                                   ignore_index=False)
+                    df = df.append(
+                        pd.DataFrame({'open': c.mid.o,
+                                      'high': c.mid.h,
+                                      'low': c.mid.l,
+                                      'close': c.mid.c},
+                                     index=[pd.to_datetime(c.time) + tz_offset]),
+                        ignore_index=False)
 
                 return df
         except Exception:
             pass
         req_count += 1
-
 
 
 def get_indicators(df):
@@ -91,7 +93,7 @@ def get_indicators(df):
 
     plusDI = talib.PLUS_DI(ph, pl, pc, 14)[-1]
     minusDI = talib.MINUS_DI(ph, pl, pc, 14)[-1]
-    adx *= (lambda x: 1 if x>0 else -1 if x<0 else 0)(plusDI - minusDI)
+    adx *= (lambda x: 1 if x > 0 else -1 if x < 0 else 0)(plusDI - minusDI)
 
     # print(ma, ema, macd, rsi, stoch, adx, cci, stochrsi, uo, roc, sar)
     return [ma, ema, macd, rsi, stoch, adx, cci, stochrsi, uo, roc, sar]
@@ -134,73 +136,13 @@ def make_indicators_dict(li, fmt):
     return indic_data
 
 
-
-# fdt = datetime.datetime.strptime('2017-06-09 19:00:00', '%Y-%m-%d %H:%M:%S')
-# ft_apistr = api.datetime_to_str(fdt)
-# df = get_hist_df('USD_JPY', 'M1', count=100, fromTime=ft_apistr)
-# print(df.tail())
-
-pairs = ['EUR_USD', 'USD_JPY', 'GBP_USD', 'AUD_USD', 'NZD_USD', 'USD_CHF', 'USD_CAD']
-freqs = ['D', 'H1', 'M1']
-pair_freqs = [(p, f) for p in pairs for f in freqs]
-fxdfs = {k: None for k in pair_freqs}
-print(fxdfs)
-
-
-# init hist df
-for pair, freq in fxdfs:
-    # fxdfs[(pair, freq)] = get_hist_df(pair, freq, count=100, fromTime=ft_apistr)  # for testing
-    fxdfs[(pair, freq)] = get_hist_df(pair, freq, count=100)
-    print(pair, freq)
-    print(fxdfs[(pair, freq)].tail())
-
-
-# while 1:
-#     t1 = time.time()
-#     for (pair, freq), df in fxdfs.items():
-#         # if dealing with sfc str:
-#         # time_str = df.iloc[-1].time[:19]
-#         # dt_last = datetime.datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S')
-
-#         dt_last = df.index[-1]
-#         # df = get_hist_df(pair, 'M1', 100)
-#         dt_now = datetime.datetime.now()
-#         if (dt_now - dt_last) > datetime.timedelta(minutes=5):
-#             from_t = api.datetime_to_str(dt_last + datetime.timedelta(minutes=1))
-#             # df1 = get_hist_df(pair, freq, count=5, fromTime=from_t)  # for testing
-#             df1 = get_hist_df(pair, freq, fromTime=from_t)
-#             fxdfs[(pair, freq)] = df.append(df1)
-#         else:
-#             df1 = get_hist_df(pair, freq, count=5)  # re-fetch last 5, maybe 2 ok
-#             fxdfs[(pair, freq)] = df.update(df1)
-
-#         print(pair, freq)
-#         print(fxdfs[(pair, freq)].tail())
-
-#     time.sleep(1)
-
-
 def stream_one(pair, freq):
     while 1:
         try:
             df = fxdfs[(pair, freq)]
-            # if dealing with sfc str:
-            # time_str = df.iloc[-1].time[:19]
-            # dt_last = datetime.datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S')
 
             dt_last = df.index[-1]
-            dt_now = datetime.datetime.now()
-            # if (dt_now - dt_last) > datetime.timedelta(minutes=5):
-            #     from_t_val = dt_last + datetime.timedelta(minutes=1) - tz_offset
-            #     from_t = api.datetime_to_str(from_t_val)
-            #     # df1 = get_hist_df(pair, freq, count=5, fromTime=from_t)  # for testing
-            #     df1 = get_hist_df(pair, freq, fromTime=from_t)
-            #     fxdfs[(pair, freq)] = df.append(df1)
-            # else:
-            #     df1 = get_hist_df(pair, freq, count=5)  # re-fetch last 5, maybe 2 ok
-            #     fxdfs[(pair, freq)] = pd.concat([df[~df.index.isin(df1.index)], df1])
-            #     print(pair, freq)
-            #     print(fxdfs[(pair, freq)].tail())
+            # dt_now = datetime.datetime.now()
             from_t = api.datetime_to_str(dt_last - tz_offset)
             df1 = get_hist_df(pair, freq, fromTime=from_t)
             fxdfs[(pair, freq)] = pd.concat([df[~df.index.isin(df1.index)], df1])
@@ -208,20 +150,7 @@ def stream_one(pair, freq):
             print(pair, freq)
             print(e)
             print(fxdfs[(pair, freq)].tail())
-
         time.sleep(1)
-
-
-output_dir = './output/'
-
-ccy_cn = {'EUR': '欧元',
-          'USD': '美元',
-          'JPY': '日元',
-          'GBP': '英镑',
-          'AUD': '澳元',
-          'NZD': '新西兰元',
-          'CHF': '瑞士法郎',
-          'CAD': '加拿大元'}
 
 
 def trend_comment(x, c):
@@ -231,6 +160,7 @@ def trend_comment(x, c):
         return '偏多'
     else:
         return '中性'
+
 
 def range_comment(x, d2, d1, u1, u2):
     if x > u2:
@@ -264,13 +194,14 @@ def gen_data(pair, freq, px, pre_px, indicators):
     data['ccy1_cn'] = ccy_cn[data['ccy1']]
     data['ccy2_cn'] = ccy_cn[data['ccy2']]
     dict_freqcn = {'D': '日线', 'W': '周线', 'M': '月线',
-                   'H1': '1小时','H4': '4小时', 'H8': '8小时',
-                   'M1': '1分钟', 'M5': '5分钟', 'M10': '10分钟', 'M15': '15分钟', 'M30': '30分钟'}
+                   'H1': '1小时', 'H4': '4小时', 'H8': '8小时',
+                   'M1': '1分钟', 'M5': '5分钟', 'M10': '10分钟', 'M15': '15分钟',
+                   'M30': '30分钟'}
     data['freq_cn'] = dict_freqcn[freq]
 
     data['last_px'] = px_fmt.format(px)
     data['chg'] = px_fmt.format(px - pre_px)
-    data['chgpct'] = '{:.3%}'.format(px/pre_px-1)
+    data['chgpct'] = '{:.3%}'.format(px / pre_px - 1)
     if px > pre_px:
         data['chgcolor'] = 'redFont'
     elif px < pre_px:
@@ -300,7 +231,8 @@ def gen_data(pair, freq, px, pre_px, indicators):
     data['stoch_comment'] = range_comment(data['stoch'], 20, 45, 55, 80)
     data['adx_comment'] = adx_comment(data['adx'])
     data['cci_comment'] = range_comment(data['cci'], -150, -50, 50, 150)
-    data['stochrsi_comment'] = range_comment(data['stochrsi'], 0.2, 0.45, 0.55, 0.8)
+    data['stochrsi_comment'] = range_comment(data['stochrsi'], 0.2, 0.45, 0.55,
+                                             0.8)
     data['uo_comment'] = trend_comment(data['uo'], 50)
     data['roc_comment'] = trend_comment(data['roc'], 0)
     data['sar_comment'] = trend_comment(px, data['sar'])
@@ -339,22 +271,22 @@ def gen_data(pair, freq, px, pre_px, indicators):
     img_up = '<img src="arrow-up_red.png" style="width:20px; height:20px; margin-bottom: -7px; margin-right: -5px"/>'
     img_down = '<img src="arrow-down_green.png" style="width:20px; height:20px; margin-bottom: -7px; margin-right: -5px"/>'
     if n_long1 - n_short1 >= 4:
-        data['summary1'] = '偏多' + img_up*2
+        data['summary1'] = '偏多' + img_up * 2
     elif n_long1 - n_short1 < 4 and n_long1 - n_short1 > 0:
         data['summary1'] = '偏多' + img_up
     elif n_long1 - n_short1 <= -4:
-        data['summary1'] = '偏空' + img_down*2
+        data['summary1'] = '偏空' + img_down * 2
     elif n_long1 - n_short1 > -4 and n_long1 - n_short1 < 0:
         data['summary1'] = '偏空' + img_down
     else:
         data['summary1'] = '中性'
 
     if n_long2 - n_short2 >= 4:
-        data['summary2'] = '偏多' + img_up*2
+        data['summary2'] = '偏多' + img_up * 2
     elif n_long2 - n_short2 < 4 and n_long2 - n_short2 > 0:
         data['summary2'] = '偏多' + img_up
     elif n_long2 - n_short2 <= -4:
-        data['summary2'] = '偏空' + img_down*2
+        data['summary2'] = '偏空' + img_down * 2
     elif n_long2 - n_short2 > -4 and n_long2 - n_short2 < 0:
         data['summary2'] = '偏空' + img_down
     else:
@@ -362,7 +294,7 @@ def gen_data(pair, freq, px, pre_px, indicators):
 
     px_data = []
     for i in range(12):
-        px_data.append([i, fxdfs[(pair, freq)].close[-12+i]])
+        px_data.append([i, fxdfs[(pair, freq)].close[-12 + i]])
     data['px_data'] = str(px_data)
 
     return data
@@ -403,7 +335,7 @@ def gen_mkt_snapshot(save_dir):
             f.write('{},{},{:.3%}\n'.format(
                 pair.replace('_', ''),
                 fxdfs[(pair, 'D')].close[-1],
-                fxdfs[(pair, 'D')].close[-1]/fxdfs[(pair, 'D')].close[-2] - 1))
+                fxdfs[(pair, 'D')].close[-1] / fxdfs[(pair, 'D')].close[-2] - 1))
 
 
 def gen_snapshot_pic(filename):
@@ -419,10 +351,30 @@ def gen_snapshot_pic(filename):
     with open(output_dir + filename + '.html', 'w') as f:
         f.write(out_html)
 
-    html_url = 'file:///home/yiju/wxpic/output/{}.html'.format(filename)
+    html_url = 'file:///home/yiju/wxfx/wxpic/output/{}.html'.format(filename)
     pic_path = './output/{}.png'.format(filename)
-    os.system('CutyCapt --url={} --out={} --min-width=900 --zoom-factor=3.0'.format(html_url, pic_path))
+    os.system(
+        'CutyCapt --url={} --out={} --min-width=900 --zoom-factor=3.0'.format(
+            html_url, pic_path))
 
+
+# fdt = datetime.datetime.strptime('2017-06-09 19:00:00', '%Y-%m-%d %H:%M:%S')
+# ft_apistr = api.datetime_to_str(fdt)
+# df = get_hist_df('USD_JPY', 'M1', count=100, fromTime=ft_apistr)
+# print(df.tail())
+
+pairs = ['EUR_USD', 'USD_JPY', 'GBP_USD', 'AUD_USD', 'NZD_USD', 'USD_CHF', 'USD_CAD']
+freqs = ['D', 'H1', 'M1']
+pair_freqs = [(p, f) for p in pairs for f in freqs]
+fxdfs = {k: None for k in pair_freqs}
+print(fxdfs)
+
+# init hist df
+for pair, freq in fxdfs:
+    # fxdfs[(pair, freq)] = get_hist_df(pair, freq, count=100, fromTime=ft_apistr)  # for testing
+    fxdfs[(pair, freq)] = get_hist_df(pair, freq, count=100)
+    print(pair, freq)
+    print(fxdfs[(pair, freq)].tail())
 
 threads = []
 for p, f in fxdfs.keys():
@@ -430,20 +382,19 @@ for p, f in fxdfs.keys():
     threads.append(t)
     t.start()
 
+output_dir = './output/'
 
 while 1:
     for p, f in fxdfs.keys():
-        # print(p, f, "indicators")
-        # print(p, px, pre_px)
-        # print(fxdfs[(p, 'D')].tail())
-        t_pic = threading.Thread(target=gen_single_pic, args=(output_dir, p, f), daemon=True)
+        t_pic = threading.Thread(target=gen_single_pic, args=(output_dir, p, f),
+                                 daemon=True)
         t_pic.start()
 
-    t_snapshot = threading.Thread(target=gen_snapshot_pic, args=('snapshot',), daemon=True)
+    t_snapshot = threading.Thread(target=gen_snapshot_pic, args=('snapshot',),
+                                  daemon=True)
     t_snapshot.start()
     gen_mkt_snapshot(output_dir)
     time.sleep(10)
 
-
-for t in threads:
-    t.join()
+# for t in threads:
+#     t.join()
