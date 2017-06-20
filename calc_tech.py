@@ -136,20 +136,26 @@ def make_indicators_dict(li, fmt):
     return indic_data
 
 
+last_feed_error_time = datetime.datetime.now()
+
+
 def stream_one(pair, freq):
+    global last_feed_error_time
     while 1:
         try:
             df = fxdfs[(pair, freq)]
 
             dt_last = df.index[-1]
-            # dt_now = datetime.datetime.now()
             from_t = api.datetime_to_str(dt_last - tz_offset)
             df1 = get_hist_df(pair, freq, fromTime=from_t)
             fxdfs[(pair, freq)] = pd.concat([df[~df.index.isin(df1.index)], df1])
         except Exception as e:
-            print(pair, freq)
+            dt_now = datetime.datetime.now()
+            print(pair, freq, '\033[41m' + str(dt_now)[:-7] + '   ',
+                  str(dt_now - last_feed_error_time)[:-7] + '\033[0m')
             print(e)
             print(fxdfs[(pair, freq)].tail())
+            last_feed_error_time = datetime.datetime.now()
         time.sleep(1)
 
 
@@ -157,6 +163,15 @@ def trend_comment(x, c):
     if x < c:
         return '偏空'
     elif x > c:
+        return '偏多'
+    else:
+        return '中性'
+
+
+def trend_cond_comment(x, c):
+    if x < c * (1 - 3e-4):
+        return '偏空'
+    elif x > c * (1 + 3e-4):
         return '偏多'
     else:
         return '中性'
@@ -216,16 +231,16 @@ def gen_data(pair, freq, px, pre_px, indicators):
     else:
         data['arrow_pic'] = 'arrow-right_blue.png'
 
-    data['ma5_comment'] = trend_comment(px, data['ma5'])
-    data['ma10_comment'] = trend_comment(px, data['ma10'])
-    data['ma20_comment'] = trend_comment(px, data['ma20'])
-    data['ma50_comment'] = trend_comment(px, data['ma50'])
-    data['ma100_comment'] = trend_comment(px, data['ma100'])
-    data['ema5_comment'] = trend_comment(px, data['ema5'])
-    data['ema10_comment'] = trend_comment(px, data['ema10'])
-    data['ema20_comment'] = trend_comment(px, data['ema20'])
-    data['ema50_comment'] = trend_comment(px, data['ema50'])
-    data['ema100_comment'] = trend_comment(px, data['ema100'])
+    data['ma5_comment'] = trend_cond_comment(px, data['ma5'])
+    data['ma10_comment'] = trend_cond_comment(px, data['ma10'])
+    data['ma20_comment'] = trend_cond_comment(px, data['ma20'])
+    data['ma50_comment'] = trend_cond_comment(px, data['ma50'])
+    data['ma100_comment'] = trend_cond_comment(px, data['ma100'])
+    data['ema5_comment'] = trend_cond_comment(px, data['ema5'])
+    data['ema10_comment'] = trend_cond_comment(px, data['ema10'])
+    data['ema20_comment'] = trend_cond_comment(px, data['ema20'])
+    data['ema50_comment'] = trend_cond_comment(px, data['ema50'])
+    data['ema100_comment'] = trend_cond_comment(px, data['ema100'])
     data['macd_comment'] = trend_comment(data['macd'], 0)
     data['rsi_comment'] = range_comment(data['rsi'], 30, 45, 55, 70)
     data['stoch_comment'] = range_comment(data['stoch'], 20, 45, 55, 80)
@@ -270,13 +285,19 @@ def gen_data(pair, freq, px, pre_px, indicators):
 
     img_up = '<img src="arrow-up_red.png" style="width:20px; height:20px; margin-bottom: -7px; margin-right: -5px"/>'
     img_down = '<img src="arrow-down_green.png" style="width:20px; height:20px; margin-bottom: -7px; margin-right: -5px"/>'
-    if n_long1 - n_short1 >= 4:
-        data['summary1'] = '偏多' + img_up * 2
-    elif n_long1 - n_short1 < 4 and n_long1 - n_short1 > 0:
+    if n_neu1 >= 7:
+        data['summary1'] = '中性'
+    elif n_neu1 == 6 and n_long1 - n_short1 >= 2:
         data['summary1'] = '偏多' + img_up
-    elif n_long1 - n_short1 <= -4:
+    elif n_neu1 == 6 and n_long1 - n_short1 <= -2:
+        data['summary1'] = '偏空' + img_down
+    elif n_neu1 <= 5 and n_long1 - n_short1 >= 4:
+        data['summary1'] = '偏多' + img_up * 2
+    elif n_neu1 <= 5 and n_long1 - n_short1 <= -4:
         data['summary1'] = '偏空' + img_down * 2
-    elif n_long1 - n_short1 > -4 and n_long1 - n_short1 < 0:
+    elif n_neu1 <= 5 and n_long1 - n_short1 < 4 and n_long1 - n_short1 >= 2:
+        data['summary1'] = '偏多' + img_up
+    elif n_neu1 <= 5 and n_long1 - n_short1 > -4 and n_long1 - n_short1 <= -2:
         data['summary1'] = '偏空' + img_down
     else:
         data['summary1'] = '中性'
@@ -373,7 +394,7 @@ print(fxdfs)
 for pair, freq in fxdfs:
     # fxdfs[(pair, freq)] = get_hist_df(pair, freq, count=100, fromTime=ft_apistr)  # for testing
     fxdfs[(pair, freq)] = get_hist_df(pair, freq, count=100)
-    print(pair, freq)
+    print(pair, freq, datetime.datetime.now())
     print(fxdfs[(pair, freq)].tail())
 
 threads = []
