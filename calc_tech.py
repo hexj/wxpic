@@ -216,7 +216,7 @@ def gen_data(pair, freq, px, pre_px, indicators):
 
     data['last_px'] = px_fmt.format(px)
     data['chg'] = px_fmt.format(px - pre_px)
-    data['chgpct'] = '{:.3%}'.format(px / pre_px - 1)
+    data['chgpct'] = '{:.2%}'.format(px / pre_px - 1)
     if px > pre_px:
         data['chgcolor'] = 'redFont'
     elif px < pre_px:
